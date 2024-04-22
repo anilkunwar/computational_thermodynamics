@@ -6,7 +6,7 @@ import tempfile
 import os
 
 def phase_diagram_app():
-    st.title('Binary Phase Diagram Construction')
+    st.title('Binary Alloy Phase Diagram Construction')
     
     # User input for binary system elements
     element1 = st.text_input("Enter the name of the first element:")
