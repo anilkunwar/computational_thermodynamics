@@ -7,7 +7,9 @@ import os
 
 def phase_diagram_app():
     st.title('Binary Alloy Phase Diagram Construction')
-    st.write('This app constructs the alloy phase diagram when the names of the two elements are specified, and the TDB file is uploaded.')
+    st.write('This app constructs the alloy phase diagram for the following inputs from the user: when the names of the two elements are specified, and the TDB file is uploaded.')
+    st.write('(i) Symbols of the two elements')
+    st.write('(ii) Thermodynamic database in TDB file format')
     # User input for binary system elements
     element1 = st.text_input("Enter the name of the first element (e.g. Cu or CU):")
     element2 = st.text_input("Enter the name of the second element (e.g. Sn or SN):")
