@@ -9,8 +9,8 @@ def phase_diagram_app():
     st.title('Binary Alloy Phase Diagram Construction')
     st.write('This app constructs the alloy phase diagram when the names of the two elements are specified, and the TDB file is uploaded.')
     # User input for binary system elements
-    element1 = st.text_input("Enter the name of the first element:")
-    element2 = st.text_input("Enter the name of the second element:")
+    element1 = st.text_input("Enter the name of the first element (e.g. Cu or CU):")
+    element2 = st.text_input("Enter the name of the second element (e.g. Sn or SN):")
     
     uploaded_file = st.file_uploader("Upload TDB file", type=["tdb", "TDB"])
     if uploaded_file is not None:
