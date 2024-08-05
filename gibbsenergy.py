@@ -1,0 +1,125 @@
+import streamlit as st
+from pycalphad import Database, calculate, variables as v
+from pycalphad.plot.utils import phase_legend
+import pandas as pd
+import numpy as np
+from scipy.optimize import curve_fit
+
+# Define the parabola function for fitting
+def parabola(X, *params):
+    N = len(X) - 1
+    x0eq = params[:N]
+    coeffs = params[N:]
+    
+    f = np.zeros(X[0].shape)
+    for i in range(N):
+        f += coeffs[i] * (X[i] - x0eq[i])**2
+    return f
+
+# Set up the Streamlit app
+st.title('TDB File Analyzer for Composition Dependent Gibbs Free Energy Computation')
+
+# Step 1: Upload .TDB file
+uploaded_file = st.file_uploader("Upload your .TDB file", type=['TDB', 'tdb'])
+
+if uploaded_file is not None:
+    # Step 2: Read the uploaded TDB file
+    with open('uploaded_database.tdb', 'wb') as f:
+        f.write(uploaded_file.getbuffer())
+    
+    st.success('File uploaded successfully!')
+    
+    # Load the database
+    dbf = Database('uploaded_database.tdb')
+    
+    # Step 3: Display the list of available phases
+    phases = list(dbf.phases.keys())
+    st.write("Available phases in the database:")
+    selected_phases = st.multiselect('Select phases to calculate', phases)
+    
+    # Step 4: Display the list of available components
+    all_comps = list(dbf.elements)
+    st.write("Available components in the database:")
+    selected_comps = st.multiselect('Select components to include', all_comps)
+    
+    if selected_phases and selected_comps:
+        # Ensure 'VA' is not included in selected components
+        if 'VA' in selected_comps:
+            selected_comps.remove('VA')
+        
+        # Prompt user to input composition ranges for filtering
+        comp_ranges = {}
+        for comp in sorted(selected_comps):
+            L = st.number_input(f'Lower bound for {comp}', value=0.0, format="%.4f")
+            H = st.number_input(f'Upper bound for {comp}', value=1.0, format="%.4f")
+            comp_ranges[comp] = (L, H)
+        
+        for phase in selected_phases:
+            calc_result = calculate(dbf, selected_comps + ['VA'], phase, P=101325, T=[573])
+            st.write(f"Calculation result for phase: {phase}")
+            
+            # Get the composition in mole fraction
+            xcomp = calc_result.X.values
+            st.write('shape of the composition matrix',xcomp.shape)
+            # Get the gibbs energy 
+            gibbs = calc_result.GM.values
+            st.write('shape of the gibbs matrix',gibbs.shape)
+            
+            # Handle reshaping based on the shape of xcomp
+            shape = xcomp.shape
+            if len(shape) == 5:
+                # Reshape the composition array
+                num_points = shape[3]
+                num_comps = shape[4]
+                xcompr = xcomp.reshape((num_points, num_comps))
+                st.write('shape of the reshaped  composition matrix',xcompr.shape)
+                
+                # Create DataFrame with component names in alphabetical order
+                sorted_comps = sorted(selected_comps)
+                column_names = [f'x{comp}' for comp in sorted_comps]
+                dfx_comp = pd.DataFrame(xcompr, columns=column_names)
+                
+                # Reshape the Gibbs free energy array
+                gibbsr = gibbs.reshape(num_points)
+                st.write('shape of the reshaped gibbs matrix',gibbsr.shape)
+                
+                # Create DataFrame for Gibbs free energy
+                dfgibbs = pd.DataFrame(gibbsr, columns=[f'gm{phase}'])
+                
+                # Merge the composition DataFrame with the Gibbs free energy DataFrame
+                df1 = dfx_comp.copy()
+                df1[f'gm{phase}'] = dfgibbs[f'gm{phase}']
+                
+                # Apply composition range filters
+                df_filtered = df1
+                for comp, (L, H) in comp_ranges.items():
+                    df_filtered = df_filtered.loc[(df_filtered[f'x{comp}'] >= L) & (df_filtered[f'x{comp}'] <= H)]
+                
+                # Display the filtered DataFrame
+                st.write(df_filtered.head())
+                st.write('shape of gibbs matrix for selected composition',df_filtered.shape)
+                
+                # Get fitting parameters from user
+                x0eq = []
+                for comp in sorted_comps:    
+                    x0 = st.number_input(f'Value for x0eq_{comp}', value=0.0, format="%.4f")    
+                    x0eq.append(x0)    
+                    
+                num_coeffs = len(sorted_comps)
+                guess = [st.number_input(f'Coefficient {i+1}', value=0.0, format="%.4f") for i in range(num_coeffs)]    
+                    
+                # Prepare data for curve fitting
+                X = [df_filtered[f'x{comp}'].values for comp in sorted_comps]
+                Y = df_filtered[f'gm{phase}'].values
+                    
+                try:
+                    # Perform curve fitting
+                    popt, pcov = curve_fit(parabola, X, Y, p0=guess + x0eq)
+                    st.write("Fitted Parameters:", popt)
+                    st.write("Covariance Matrix:", pcov)
+                except Exception as e:
+                    st.write("Error in curve fitting:", e)
+            else:
+                st.write("Unexpected shape for xcomp:", xcomp.shape)
+                st.write("Unexpected shape for gibbs:", gibbs.shape)
+
