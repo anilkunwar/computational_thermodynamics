@@ -4,6 +4,7 @@ from pycalphad.plot.utils import phase_legend
 import pandas as pd
 import numpy as np
 from scipy.optimize import curve_fit
+from io import StringIO
 
 # Define the parabola function for fitting
 def parabola(X, *params):
@@ -100,6 +101,12 @@ if uploaded_file is not None:
                 # Display the filtered DataFrame
                 st.write(df_filtered.head())
                 st.write('shape of gibbs matrix for selected composition',df_filtered.shape)
+
+                # Add download button for CSV file
+                csv = df_filtered.to_csv(index=False)
+                b64 = base64.b64encode(csv.encode()).decode()  # some strings <-> bytes conversions necessary here
+                href = f'<a href="data:file/csv;base64,{b64}" download="filtered_data.csv">Download CSV File</a>'
+                st.markdown(href, unsafe_allow_html=True)
                 
                 # Get fitting parameters from user
                 x0eq = []
