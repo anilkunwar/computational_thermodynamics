@@ -5,6 +5,7 @@ import pandas as pd
 import numpy as np
 from scipy.optimize import curve_fit
 from io import StringIO
+import base64
 
 # Define the parabola function for fitting
 def parabola(X, *params):
