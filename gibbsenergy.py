@@ -46,8 +46,10 @@ if uploaded_file is not None:
         # Ensure 'VA' is not included in selected components
         if 'VA' in selected_comps:
             selected_comps.remove('VA')
-        
-        # Prompt user to input composition ranges for filtering
+
+        # Request user to input temperature
+        temperature = st.number_input('Input temperature (K)', value=298, format="%.2f")
+        # Request user to input composition ranges for filtering
         comp_ranges = {}
         for comp in sorted(selected_comps):
             L = st.number_input(f'Lower bound for {comp}', value=0.0, format="%.4f")
@@ -55,7 +57,7 @@ if uploaded_file is not None:
             comp_ranges[comp] = (L, H)
         
         for phase in selected_phases:
-            calc_result = calculate(dbf, selected_comps + ['VA'], phase, P=101325, T=[573])
+            calc_result = calculate(dbf, selected_comps + ['VA'], phase, P=101325, T=[temperature])
             st.write(f"Calculation result for phase: {phase}")
             
             # Get the composition in mole fraction
