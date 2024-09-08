@@ -1,9 +1,9 @@
 import numpy as np
 import pandas as pd
 
-def generate_parabola_data(mole_fractions_peak, y_peak, A, num_points=100, component_names=None):
+def generate_freeenergy_data(mole_fractions_peak, y_peak, A, num_points=100, component_names=None):
     """
-    Generates the parabola data based on the given parameters for multiple components.
+    Generates the free energy data based on the given parameters for multiple components.
     
     Args:
         mole_fractions_peak (list of floats): The mole fractions at the peak of the parabola for each component.
