@@ -104,61 +104,11 @@ if uploaded_file is not None:
                 # Display the filtered DataFrame
                 st.write(df_filtered.head())
                 st.write('shape of gibbs matrix for selected composition',df_filtered.shape)
-                # If there is only one data point for Gibbs free energy, generate parabola data
-                if gibbsr.shape == (1,):
-                    st.warning("Only one Gibbs free energy point available. Generating parabolic data.")
-                    
-                    # Request user input for parabola generation
-                    peak_x = st.number_input("Enter the mole fraction for the peak (c):", min_value=0.0, max_value=1.0, value=0.5)
-                    peak_y = st.number_input("Enter the Gibbs energy for the peak (J/mol):", value=-2.5E+04, format="%.2E")
-                    A = st.number_input("Enter the coefficient A for the parabola (J/mol):", value=1.0E+06, format="%.2E")
-                    num_points_parabola = st.slider("Number of data points for parabola:", min_value=10, max_value=200, value=100)
-
-                    # Generate parabola data
-                    parabola_data = generate_freeenergy_data(peak_x, peak_y, A, num_points_parabola)
-
-                    # Display the generated parabola data
-                    st.write(parabola_data.head())
-
-                    # Provide a download link for the generated data
-                    csv_parabola = parabola_data.to_csv(index=False)
-                    b64_parabola = base64.b64encode(csv_parabola.encode()).decode()
-                    href_parabola = f'<a href="data:file/csv;base64,{b64_parabola}" download="reconstructed_data.csv">Download Parabolic Data</a>'
-                    st.markdown(href_parabola, unsafe_allow_html=True)
-                # If only one Gibbs free energy point is available, generate parabola data for multiple components
-                if gibbsr.shape == (1,):
-                    st.warning("Only one Gibbs free energy point available. Generating parabolic data.")
-                    # Request user input for parabola generation
-                    num_components = len(sorted_comps)
-                    mole_fractions_peak = []
-    
-                    for comp in sorted_comps:
-                        peak_x = st.number_input(f"Enter the mole fraction for the peak of {comp}:", min_value=0.0, max_value=1.0, value=0.5)
-                        mole_fractions_peak.append(peak_x)
-    
-                    peak_y = st.number_input("Enter the Gibbs energy for the peak (J/mol):", value=-2.5E+04, format="%.2E")
-                    A = st.number_input("Enter the coefficient A for the parabola (J/mol):", value=1.0E+06, format="%.2E")
-                    num_points_parabola = st.slider("Number of data points for parabola:", min_value=10, max_value=200, value=100)
-    
-                    # Generate parabola data
-                    parabola_data = generate_parabola_data(mole_fractions_peak, peak_y, A, num_points=num_points_parabola, component_names=sorted_comps)
-    
-                    # Display the generated parabola data
-                    st.write(parabola_data.head())
-    
-                    # Provide a download link for the generated data
-                    csv_parabola = parabola_data.to_csv(index=False)
-                    b64_parabola = base64.b64encode(csv_parabola.encode()).decode()
-                    href_parabola = f'<a href="data:file/csv;base64,{b64_parabola}" download="reconstructed_data.csv">Download Parabolic Data</a>'
-                    st.markdown(href_parabola, unsafe_allow_html=True)
-    
-    
-                else:
-                    # Add download button for CSV file
-                    csv = df_filtered.to_csv(index=False)
-                    b64 = base64.b64encode(csv.encode()).decode()  # some strings <-> bytes conversions necessary here
-                    href = f'<a href="data:file/csv;base64,{b64}" download="direct_data.csv">Download CSV File</a>'
-                    st.markdown(href, unsafe_allow_html=True)
+                # Add download button for CSV file
+                csv = df_filtered.to_csv(index=False)
+                b64 = base64.b64encode(csv.encode()).decode()  # some strings <-> bytes conversions necessary here
+                href = f'<a href="data:file/csv;base64,{b64}" download="direct_data.csv">Download CSV File</a>'
+                st.markdown(href, unsafe_allow_html=True)
                 
                 # Get fitting parameters from user
                 x0eq = []
