@@ -125,6 +125,34 @@ if uploaded_file is not None:
                     b64_parabola = base64.b64encode(csv_parabola.encode()).decode()
                     href_parabola = f'<a href="data:file/csv;base64,{b64_parabola}" download="reconstructed_data.csv">Download Parabolic Data</a>'
                     st.markdown(href_parabola, unsafe_allow_html=True)
+                # If only one Gibbs free energy point is available, generate parabola data for multiple components
+                if gibbsr.shape == (1,):
+                    st.warning("Only one Gibbs free energy point available. Generating parabolic data.")
+                    # Request user input for parabola generation
+                    num_components = len(sorted_comps)
+                    mole_fractions_peak = []
+    
+                    for comp in sorted_comps:
+                        peak_x = st.number_input(f"Enter the mole fraction for the peak of {comp}:", min_value=0.0, max_value=1.0, value=0.5)
+                        mole_fractions_peak.append(peak_x)
+    
+                    peak_y = st.number_input("Enter the Gibbs energy for the peak (J/mol):", value=-2.5E+04, format="%.2E")
+                    A = st.number_input("Enter the coefficient A for the parabola (J/mol):", value=1.0E+06, format="%.2E")
+                    num_points_parabola = st.slider("Number of data points for parabola:", min_value=10, max_value=200, value=100)
+    
+                    # Generate parabola data
+                    parabola_data = generate_parabola_data(mole_fractions_peak, peak_y, A, num_points=num_points_parabola, component_names=sorted_comps)
+    
+                    # Display the generated parabola data
+                    st.write(parabola_data.head())
+    
+                    # Provide a download link for the generated data
+                    csv_parabola = parabola_data.to_csv(index=False)
+                    b64_parabola = base64.b64encode(csv_parabola.encode()).decode()
+                    href_parabola = f'<a href="data:file/csv;base64,{b64_parabola}" download="reconstructed_data.csv">Download Parabolic Data</a>'
+                    st.markdown(href_parabola, unsafe_allow_html=True)
+    
+    
                 else:
                     # Add download button for CSV file
                     csv = df_filtered.to_csv(index=False)
