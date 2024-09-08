@@ -115,7 +115,7 @@ if uploaded_file is not None:
                     num_points_parabola = st.slider("Number of data points for parabola:", min_value=10, max_value=200, value=100)
 
                     # Generate parabola data
-                    parabola_data = generate_parabola_data(peak_x, peak_y, A, num_points_parabola)
+                    parabola_data = generate_freeenergy_data(peak_x, peak_y, A, num_points_parabola)
 
                     # Display the generated parabola data
                     st.write(parabola_data.head())
