@@ -83,7 +83,7 @@ st.title("Gibbs Free Energy Surface Reconstruction")
 
 # Sidebar inputs
 st.sidebar.header("Input Parameters")
-A = st.sidebar.slider("Parabola Coefficient (A)", min_value=-1.0E+10, max_value=-1.0E+01, value=-1.0E+06, step=1.0E+05, format="%.2E")
+A = st.sidebar.slider("Parabola Coefficient (A)", min_value=1.0E+01, max_value=1.0E+06, value=1.0E+02, step=1.0E+01, format="%.2E")
 y_peak = st.sidebar.number_input("Peak Gibbs Energy (J/mol)", value=-2.513796E+03, step=1.0E+02,  format="%.2E")
 num_points = st.sidebar.slider("Number of Points", min_value=10, max_value=100, value=50, step=5)
 
