@@ -88,6 +88,21 @@ if uploaded_file is not None:
                 gibbsr = gibbs.reshape(num_points)
                 st.write('shape of the reshaped gibbs matrix',gibbsr.shape)
 
+                # Create DataFrame for Gibbs free energy
+                dfgibbs = pd.DataFrame(gibbsr, columns=[f'gm{phase}'])
+                
+                # Merge the composition DataFrame with the Gibbs free energy DataFrame
+                df1 = dfx_comp.copy()
+                df1[f'gm{phase}'] = dfgibbs[f'gm{phase}']
+                
+                # Apply composition range filters
+                df_filtered = df1
+                for comp, (L, H) in comp_ranges.items():
+                    df_filtered = df_filtered.loc[(df_filtered[f'x{comp}'] >= L) & (df_filtered[f'x{comp}'] <= H)]
+                
+                # Display the filtered DataFrame
+                st.write(df_filtered.head())
+                st.write('shape of gibbs matrix for selected composition',df_filtered.shape)
                 # If there is only one data point for Gibbs free energy, generate parabola data
                 if gibbsr.shape == (1,):
                     st.warning("Only one Gibbs free energy point available. Generating parabolic data.")
@@ -110,22 +125,6 @@ if uploaded_file is not None:
                     href_parabola = f'<a href="data:file/csv;base64,{b64_parabola}" download="reconstructed_data.csv">Download Parabolic Data</a>'
                     st.markdown(href_parabola, unsafe_allow_html=True)
                 else:
-                    # Create DataFrame for Gibbs free energy
-                    dfgibbs = pd.DataFrame(gibbsr, columns=[f'gm{phase}'])
-                
-                    # Merge the composition DataFrame with the Gibbs free energy DataFrame
-                    df1 = dfx_comp.copy()
-                    df1[f'gm{phase}'] = dfgibbs[f'gm{phase}']
-                
-                    # Apply composition range filters
-                    df_filtered = df1
-                    for comp, (L, H) in comp_ranges.items():
-                        df_filtered = df_filtered.loc[(df_filtered[f'x{comp}'] >= L) & (df_filtered[f'x{comp}'] <= H)]
-                
-                    # Display the filtered DataFrame
-                    st.write(df_filtered.head())
-                    st.write('shape of gibbs matrix for selected composition',df_filtered.shape)
-
                     # Add download button for CSV file
                     csv = df_filtered.to_csv(index=False)
                     b64 = base64.b64encode(csv.encode()).decode()  # some strings <-> bytes conversions necessary here
