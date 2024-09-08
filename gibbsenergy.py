@@ -6,7 +6,8 @@ import numpy as np
 from scipy.optimize import curve_fit
 from io import StringIO
 import base64
-from parabola_module import generate_parabola_data  # Importing the parabola generation module
+#from parabola_module import generate_parabola_data  # Importing the parabola generation module
+from data_reconstruction import generate_freeenergy_data  # Importing the parabola generation module
 
 # Define the parabola function for fitting
 def parabola(X, *params):
