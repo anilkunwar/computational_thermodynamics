@@ -45,7 +45,8 @@ G(x, y) = {A_Fe} \cdot x^2 (0.94 - x)^2 + {A_Cr} \cdot y^2 (0.05 - y)^2 +
 
 # Meshgrid for x and y values
 x = np.linspace(0, 1, 50)
-y = np.linspace(0, 1, 50)
+y = np.linspace(0, 0.1, 50)
+#y = np.linspace(0, 1, 50)
 X, Y = np.meshgrid(x, y)
 
 # Calculate free energy
